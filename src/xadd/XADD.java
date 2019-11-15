@@ -77,10 +77,11 @@ public class XADD {
     public final static int LT_EQ = 14;
     public final static int LINEARIZE = 15;
     public final static int ROUND = 16;
-    public final static int ERROR = 17; // This should always be max index -- anything index >= is ERROR
-    public final static String[] _aOpNames = {/* 0 */"UND",
-        /* 1 */"+", "-", "*", "/", "max", "min", "|l", "|h",
-        /* 9 */"=", "!=", ">", ">=", "<", "<=", "LIN", "ROUND", "ERROR"};
+    public final static int ARGMAX = 17;
+    public final static int ARGMIN = 18;
+    public final static int ERROR = 19; // This should always be max index -- anything index >= is ERROR
+    public final static String[] _aOpNames = { /* 0 */"UND", /* 1 */"+", "-", "*", "/", "max", "min", "|l", "|h",
+            /* 9 */"=", "!=", ">", ">=", "<", "<=", "LIN", "ROUND", "argmax", "argmin", "ERROR" };
 
     // Printing constants
     public final static String STRING_TAB = "   ";
@@ -829,15 +830,14 @@ public class XADD {
 
     public IntTriple _tempApplyKey = new IntTriple(-1, -1, -1);
 
-    public int apply(int a1, int a2, int op) {
-        int ret = applyInt(a1, a2, op);
+    public int apply(int a1, int a2, int op, int... substitutions) {
+        int ret = applyInt(a1, a2, op, substitutions);
         if (op == MIN || op == MAX)
             ret = makeCanonical(ret);
         return ret;
     }
 
-    public int applyInt(int a1, int a2, int op) {
-
+    public int applyInt(int a1, int a2, int op, int... substitutions) {
         // adding divBranch, -1 if no divison, 1 if branch false, 2 if branch
         // true
         _tempApplyKey.set(a1, a2, op);
@@ -849,7 +849,7 @@ public class XADD {
         // Can we create a terminal node here?
         XADDNode n1 = getExistNode(a1);
         XADDNode n2 = getExistNode(a2);
-        ret = computeTermNode(a1, n1, a2, n2, op);
+        ret = computeTermNode(a1, n1, a2, n2, op, substitutions);
         if (ret == null) {
 
             int v1low, v1high, v2low, v2high, var;
@@ -906,9 +906,8 @@ public class XADD {
     }
 
     // Computes a terminal node value if possible
-    public Integer computeTermNode(int a1, XADDNode n1, int a2, XADDNode n2, int op) {
-        
-        //NaN cannot become valid by operations 
+    public Integer computeTermNode(int a1, XADDNode n1, int a2, XADDNode n2, int op, int... substitutions) {
+        //NaN cannot become valid by operations
         if (a1 == NAN || a2 ==NAN){
             return NAN;
         }
@@ -1046,7 +1045,7 @@ public class XADD {
             XADDTNode xa2 = (XADDTNode) n2;
 
             // Operations: +,-,*,/
-            if ((op != MAX) && (op != MIN)) {
+            if ((op != MAX) && (op != MIN) && (op != ARGMAX) && (op != ARGMIN)) {
                 //System.out.println("Returning: " + new OperExpr(ArithOperation.fromXADDOper(op), xa1._expr, xa2._expr));
                 return getTermNode(new OperExpr(ArithOperation.fromXADDOper(op), xa1._expr, xa2._expr));
             }
@@ -1060,6 +1059,11 @@ public class XADD {
             int node1, node2;
             node1 = getTermNode(xa1._expr);
             node2 = getTermNode(xa2._expr);
+
+            if ((op == ARGMAX) || (op == ARGMIN)) {
+                return getINode(var_index, op == ARGMAX ? substitutions[0] : substitutions[1],
+                        op == ARGMAX ? substitutions[1] : substitutions[0]);
+            }
 
             // Operations: min/max -- return a decision node
             return getINode(var_index, op == MAX ? node1 : node2,
@@ -2760,12 +2764,10 @@ public class XADD {
             return result;
         }
 
-        /*
-                public int hashCode() {
-                    return (_var) + (_low << 10) - (_high << 20) + (_high >>> 20)
-                            - (_low >>> 10);
-                }
-        */
+        // public int hashCode() {
+        //     return (_var) + (_low << 10) - (_high << 20) + (_high >>> 20) - (_low >>> 10);
+        // }
+        
         //added by Hadi
         public XADDNode getLowChild() {
             return _hmInt2Node.get(_low);
