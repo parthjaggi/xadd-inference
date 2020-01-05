@@ -50,16 +50,18 @@ public class WinUNIX {
         } else if (SYSTEM == LINUX_LIKE) {
 
             SAT_EXE = "minisat/minisat";
-            GVIZ_EXE = "/usr/bin/dot -Tdot";
+            // GVIZ_EXE = "/usr/bin/dot -Tdot";
+            GVIZ_EXE = "/usr/local/bin/dot -Tdot";
             GVIZ_CMD = "/bin/sh 'dot -Tdot";
             GVIZ_CMD_CLOSE = "'";
-            GVIZ2_EXE = "/usr/bin/neato -Tdot";
+            GVIZ2_EXE = "/usr/local/bin/neato -Tdot";
             GVIZ2_CMD = "/bin/sh 'neato -Tdot";
             GVIZ2_CMD_CLOSE = "'";
 
         } else if (SYSTEM == MAC_OS) {
             SAT_EXE = "/Users/ludygrv/Dropbox/Disciplinas/2sem/LABIA/LOGIC1/" +
                     "minisat/minisat";
+            // GVIZ_EXE = "/usr/bin/dot -Tdot";
             GVIZ_EXE = "/usr/local/bin/dot -Tdot";
             GVIZ_CMD = "/bin/sh 'dot -Tdot";
             GVIZ_CMD_CLOSE = "'";

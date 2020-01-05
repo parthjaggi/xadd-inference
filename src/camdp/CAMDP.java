@@ -14,6 +14,7 @@ import util.IntTriple;
 import xadd.XADD;
 import xadd.XADDUtils;
 import xadd.ExprLib.*;
+import xadd.XADD.*;
 
 /**
  * Main Continuous State and Action MDP (CAMDP) dynamic programming solution class
@@ -43,7 +44,7 @@ public class CAMDP {
     private static final boolean SILENT_PLOT = true;
     private static final boolean DONT_SHOW_HUGE_GRAPHS = true;
     private static final int MAXIMUM_XADD_DISPLAY_SIZE = 500;
-    public static final boolean SILENCE_ERRORS_PLOTS = false;
+    public static final boolean SILENCE_ERRORS_PLOTS = true;
     
     //Prune and Linear Flags
     public double maxImediateReward;
@@ -136,6 +137,7 @@ public class CAMDP {
      * Constructor - pre-parsed file
      */
     private CAMDP(String file_source, ArrayList input) {
+        // System.out.println("input" + input);
 
         // Basic initializations
         _problemFile = file_source;
@@ -204,6 +206,23 @@ public class CAMDP {
             e.printStackTrace();
             System.exit(1);
         }
+
+        // solve argmax on lp xadd to get dq3
+        // substitute the dq3 value in transitions of the actions
+
+        ComputeQFunction _qfunHelper2 = new ComputeQFunction(_context, this);
+        System.out.println("lp: " + _context.getString(_context._lp));
+        int a = _qfunHelper2.maxOutVar(_context._lp, "dq3", 0, 100);
+        int b = _context.argify(a);
+        System.out.println("lp: " + _context.getString(b));
+        System.out.println();
+
+        for (Map.Entry<String, CAction> me : _hmName2Action.entrySet()) {
+            // System.out.println("me.getValue: " + me.getValue());
+            // modifyCAction(me.getKey(), me.getValue(), b);
+            modifyCAction3(me.getKey(), me.getValue(), a);
+            // System.out.println("me.getValue: " + me.getValue());
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -230,6 +249,7 @@ public class CAMDP {
 
         // Initialize value function to zero
         _valueDD = _context.ZERO;
+        // System.out.println("_valueDD: " + _valueDD + _context.getString(_valueDD));
 
         // Perform value iteration for specified number of iterations, or until convergence detected
         while (_nCurIter < max_iter) {
@@ -244,11 +264,14 @@ public class CAMDP {
 
             // Iterate over each action
             _maxDD = null;
+            // System.out.println("_hmName2Action.entrySet(): " + _hmName2Action.keySet());
             for (Map.Entry<String, CAction> me : _hmName2Action.entrySet()) {
 
                 // Regress the current value function through each action (finite number of continuous actions)
                 resetTimer(0);
                 int regr = _qfunHelper.regress(_valueDD, me.getValue());
+                // System.out.println(_context.getString(regr));
+                // System.out.println();
                 if (EFFICIENCY_DEBUG) System.out.println("Regression Time for "+me.getKey()+" in iter "+_nCurIter+" = "+getElapsedTime(0));
                 regr = standardizeDD(regr); 
                 if (DISPLAY_POSTMAX_Q)
@@ -355,6 +378,88 @@ public class CAMDP {
         //////////////////////////////////////////////////////////////////////////
 
         return _nCurIter;
+    }
+
+    // modifies the CAction that contains model equations with dq3. 
+    // replaces those with dq3 lp xadd.
+    private void modifyCAction(String action, CAction ca, int dq3) {
+        for (Map.Entry<String, Integer> me : ca._hmVar2DD.entrySet()) {
+            XADDTNode node = (XADDTNode) ca._camdp._context.getNode(me.getValue());
+
+            HashSet<String> vars = new HashSet<String>();
+            node._expr.collectVars(vars);
+
+            if (vars.contains("dq3")) {
+                CoefExprPair removed = node._expr.removeVarFromExpr("dq3");
+                Integer int1 = ca._camdp._context.getTermNode(removed._expr);
+
+                Integer op = removed._coef < 0 ? XADD.MINUS : ((OperExpr) node._expr)._type.ordinal();
+                Integer int2 = ca._camdp._context.apply(int1, dq3, op);
+
+                ca._hmVar2DD.put(me.getKey(), int2);
+            }
+        }
+    }
+
+    private void modifyCAction3(String action, CAction ca, int dq3) {
+        for (Map.Entry<String, Integer> me : ca._hmVar2DD.entrySet()) {
+            ArrayList<String> actions = new ArrayList<String>() {{ add("q1"); add("q2");}};
+            XADDTNode node = (XADDTNode) ca._camdp._context.getNode(me.getValue());
+
+            HashSet<String> vars = new HashSet<String>();
+            node._expr.collectVars(vars);
+
+            if (vars.contains("dq3")) {
+                CoefExprPair removed = node._expr.removeVarFromExpr("dq3");
+                Integer int1 = ca._camdp._context.getTermNode(removed._expr);
+
+                Integer op = removed._coef < 0 ? XADD.MINUS : ((OperExpr) node._expr)._type.ordinal();
+                Integer int2 = ca._camdp._context.apply(int1, dq3, op);
+
+                // cut action name to get q1/q2.
+                String actionName = action.split("G")[0];
+
+                // get opposite name from actions.
+                actions.remove(actionName);
+
+                // replace opposite name with current action name.
+                HashMap<String, ArithExpr> a = new HashMap<String, ArithExpr>();
+                a.put(actions.get(0), new VarExpr(actionName));
+                int int3 = ca._camdp._context.substitute(int2, a);
+
+                ca._hmVar2DD.put(me.getKey(), int3);
+            }
+        }
+    }
+
+    // modifies CAction CPF equation. 
+    private void modifyCAction2(String action, CAction ca) {
+        for (Map.Entry<String, Integer> me : ca._hmVar2DD.entrySet()) {
+            ArrayList<String> actions = new ArrayList<String>() {{ add("q1"); add("q2");}};
+            XADDNode node = ca._camdp._context.getNode(me.getValue());
+
+            HashSet<String> vars = new HashSet<String>();
+            node.collectVars(vars);
+
+            if (vars.contains("q3")) { // because dq3 changed to q3
+                // cut action name to get q1/q2.
+                String actionName = action.split("G")[0];
+
+                // get opposite name from actions.
+                actions.remove(actionName);
+
+                // replace opposite name with current action name.
+                HashMap<String, ArithExpr> a = new HashMap<String, ArithExpr>();
+                a.put(actions.get(0), new VarExpr(actionName));
+                int b = ca._camdp._context.substitute(me.getValue(), a);
+                // System.out.println(ca._camdp._context.getString(b));
+                ca._hmVar2DD.put(me.getKey(), b);
+
+                System.out.println(me.getKey() + ca._camdp._context.getString(b));
+            } else {
+                System.out.println(me.getKey() + ca._camdp._context.getString(me.getValue()));
+            }
+        }
     }
 
     public static void ExitOnError(String msg) {

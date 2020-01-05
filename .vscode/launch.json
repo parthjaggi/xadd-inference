@@ -1,0 +1,43 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CAMDP - Args - ContAct",
+            "request": "launch",
+            "mainClass": "camdp.CAMDP",
+            "projectName": "xadd-inference",
+            "args": "src/camdp/ex/contact/1d-robot-linear2-copy.cmdp 2 false false"
+        },
+        {
+            "type": "java",
+            "name": "CAMDP - Args - DiscAct",
+            "request": "launch",
+            "mainClass": "camdp.CAMDP",
+            "projectName": "xadd-inference",
+            "args": "src/camdp/ex/discact/toy1.cmdp 2 false false"
+        },
+        {
+            "type": "java",
+            "name": "CAMDP - Args - DiscAct2",
+            "request": "launch",
+            "mainClass": "camdp.CAMDP",
+            "projectName": "xadd-inference",
+            "args": "src/camdp/ex/discact/trafficOptTrans.cmdp 2 false false"
+        },
+        {
+            "type": "java",
+            "name": "CAMDP - Args - DiscAct3",
+            "request": "launch",
+            "mainClass": "camdp.CAMDP",
+            "projectName": "xadd-inference",
+            "args": "src/camdp/ex/discact/trafficOptTrans.cmdp 2 false true"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - CAMDP",
+            "request": "launch",
+            "mainClass": "camdp.CAMDP",
+            "projectName": "xadd-inference"
+        }
+    ]
+}

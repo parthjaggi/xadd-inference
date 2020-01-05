@@ -1,0 +1,21 @@
+cvariables (x1, x2)
+min-values (-1000000, -1000000)
+max-values (1000000, 1000000)
+bvariables ()
+ivariables()
+avariables(a2)
+
+action move (-1000000<=a2<=1000000)
+
+x1' ([x1+a2])
+x2' ([x2+a2])
+
+reward ([a2<=x1-x2]
+            ([a2<=5]
+           		([a2])
+           		([-500]))
+      		([-500])
+      )
+endaction
+discount 1.000000
+iterations 2

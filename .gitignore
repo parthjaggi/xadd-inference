@@ -1,0 +1,9 @@
+/bin/
+/*.png
+/*.svg
+/*.log
+/*.dot
+/*.xadd
+/*.txt
+src/camdp/ex/discact/results
+src/camdp/ex/contact/results
