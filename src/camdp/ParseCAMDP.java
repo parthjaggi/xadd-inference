@@ -36,6 +36,7 @@ public class ParseCAMDP {
     HashMap<String, Boolean> _initBVal = new HashMap<String, Boolean>();
 
     HashMap<String, CAction> _name2Action = new HashMap<String, CAction>();
+    HashMap<String, CAction> _name2Action2 = new HashMap<String, CAction>();
 
     public ParseCAMDP(CAMDP camdp) {
         _camdp = camdp;
@@ -200,10 +201,44 @@ public class ParseCAMDP {
         for (String s : CVars)
             NSCVars.add(s + "'");
 
-        // Set up actions
+        // System.out.println("NSCVars: " + NSCVars);
+
+        // Set up transition-lp
         while (true) {
             o = push_back == null ? i.next() : push_back; // Could have a saved object if avariable declaration was missing
             push_back = null; // Whether or not it was used, clear it
+
+            if (!(o instanceof String) || !((String) o).equalsIgnoreCase("transitionlp")) {
+                push_back = o;
+                break;
+            }
+
+            o = i.next();
+            String aname = (String) o;
+
+            // This handles intermediate and next-state var CPFs
+            HashMap<String, ArrayList> cpt_map = new HashMap<String, ArrayList>();
+            while (!((String) o).equalsIgnoreCase("endtransition")) {
+                Object o2 = i.next();
+                // System.out.println("o2: " + o2);
+                _camdp._context._lp = _camdp._context.buildCanonicalXADD((ArrayList) o2);
+                cpt_map.put((String) o, (ArrayList) o2);
+                o = i.next();
+                // System.out.println("o: " + o);
+            }
+
+            // System.out.println("cpt_map: " + cpt_map.toString());
+            // System.out.println("lp: " + _camdp._context.getString(_camdp._context._lp));
+        } // endaction
+
+        // System.out.println("actions");
+
+        // Set up actions
+        while (true) {
+            // System.out.println("o: " + o);
+            o = push_back == null ? i.next() : push_back; // Could have a saved object if avariable declaration was missing
+            push_back = null; // Whether or not it was used, clear it
+            // System.out.println("--> o: " + o);
             if (!(o instanceof String)
                     || !((String) o).equalsIgnoreCase("action")) {
                 break;

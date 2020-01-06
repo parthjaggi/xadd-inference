@@ -36,6 +36,7 @@ import net.ericaro.surfaceplotter.surface.ArraySurfaceModel;
 
 import plot.PlotExample;
 import util.DevNullPrintStream;
+import xadd.ExprLib.*;
 
 public class XADDUtils {
 
@@ -436,6 +437,13 @@ public class XADDUtils {
 
                 static_dvars.put(xVar, (double) x);
                 static_dvars.put(yVar, (double) y);
+
+                // System.out.println(context.getString(xadd));
+                HashMap<String, ArithExpr> a = new HashMap<String, ArithExpr>();
+                a.put("q1", new VarExpr("q2"));
+                xadd = context.substitute(xadd, a);
+                // System.out.println(context.getString(xadd));
+                
                 float z = context.evaluate(xadd, static_bvars, static_dvars).floatValue();
                 if (Float.isInfinite(z)) {
                 	if (INFINITE_PLOT_VALUE == null)

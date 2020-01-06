@@ -31,6 +31,7 @@ public class ComputeQFunction {
         _camdp._logStream.println("\n>>> REGRESSING '" + a._sName + "'\n");
 
         // Prime the value function
+        // System.out.println("_camdp._hmPrimeSubs: " + _camdp._hmPrimeSubs);
         int q = _context.substitute(vfun, _camdp._hmPrimeSubs);
         _camdp._logStream.println("- Primed value function:\n" + _context.getString(q));
 
@@ -315,7 +316,15 @@ public class ComputeQFunction {
 
     public int maxOutVar(int ixadd, String var, double lb, double ub) {
         XADDLeafMinOrMax max = _context.new XADDLeafMinOrMax(var, lb, ub, true /* is_max */, _camdp._logStream);
+        // System.out.println("var: " + var);
+        System.out.println("ixadd: " + _context.getString(ixadd));
+
         ixadd = _context.reduceProcessXADDLeaf(ixadd, max, false);
+
+        System.out.println("_runningResult: " + _context.getString(max._runningResult));
+        Integer result = _context.argify(max._runningResult);
+        // System.out.println("_runningResult argfy: " + _context.getString(result));
+
         return max._runningResult;
     }
 

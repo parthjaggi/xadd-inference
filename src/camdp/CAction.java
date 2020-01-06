@@ -77,6 +77,18 @@ public class CAction {
             String var = e.getKey();
             int xadd = _camdp._context.buildCanonicalXADD(e.getValue());
 
+            // System.out.println("var: " + var);
+            // System.out.println("e.getValue(): " + e.getValue());
+            // System.out.println("_camdp._context.getString(xadd): " + _camdp._context.getString(xadd));
+            // System.out.println();
+
+            // System.out.println(_boolNextStateVars.contains(var));
+            // System.out.println(_boolIntermVars.contains(var));
+            // System.out.println(_contNextStateVars.contains(var));
+            // System.out.println(_contIntermVars.contains(var));
+            // System.out.println();
+            // System.out.println();
+
             // If a boolean variable, need to construct dual action diagram
             if (_boolNextStateVars.contains(var) || _boolIntermVars.contains(var)) {
                 int var_index = _camdp._context.getVarIndex(_camdp._context.new BoolDec(var/* + "'"*/), false);
