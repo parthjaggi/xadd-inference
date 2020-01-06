@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CAMDP - Args - DiscAct",
+            "request": "launch",
+            "mainClass": "camdp.CAMDP",
+            "projectName": "xadd-inference",
+            "args": "src/camdp/ex/discact/toy1.cmdp 2 false false"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - CAMDP",
+            "request": "launch",
+            "mainClass": "camdp.CAMDP",
+            "projectName": "xadd-inference"
+        }
+    ]
+}
