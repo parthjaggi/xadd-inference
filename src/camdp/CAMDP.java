@@ -210,19 +210,19 @@ public class CAMDP {
         // solve argmax on lp xadd to get dq3
         // substitute the dq3 value in transitions of the actions
 
-        ComputeQFunction _qfunHelper2 = new ComputeQFunction(_context, this);
-        System.out.println("lp: " + _context.getString(_context._lp));
-        int a = _qfunHelper2.maxOutVar(_context._lp, "dq3", 0, 100);
-        int b = _context.argify(a);
-        System.out.println("lp: " + _context.getString(b));
-        System.out.println();
+        // ComputeQFunction _qfunHelper2 = new ComputeQFunction(_context, this);
+        // System.out.println("lp: " + _context.getString(_context._lp));
+        // int a = _qfunHelper2.maxOutVar(_context._lp, "dq3", 0, 100);
+        // int b = _context.argify(a);
+        // System.out.println("lp: " + _context.getString(b));
+        // System.out.println();
 
-        for (Map.Entry<String, CAction> me : _hmName2Action.entrySet()) {
-            // System.out.println("me.getValue: " + me.getValue());
-            // modifyCAction(me.getKey(), me.getValue(), b);
-            modifyCAction3(me.getKey(), me.getValue(), a);
-            // System.out.println("me.getValue: " + me.getValue());
-        }
+        // for (Map.Entry<String, CAction> me : _hmName2Action.entrySet()) {
+        //     // modifyCAction(me.getKey(), me.getValue(), b);
+        //     // should have used b here, since that is the argmax solution
+        //     // a is just max solution
+        //     modifyCAction3(me.getKey(), me.getValue(), a);
+        // }
     }
 
     ////////////////////////////////////////////////////////////////////////////

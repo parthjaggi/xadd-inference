@@ -323,7 +323,12 @@ public class ComputeQFunction {
 
         System.out.println("_runningResult: " + _context.getString(max._runningResult));
         Integer result = _context.argify(max._runningResult);
-        // System.out.println("_runningResult argfy: " + _context.getString(result));
+        
+        result = _context.reduceLinearize(result);
+        result = _context.reduceLP(result);
+
+        System.out.println("_runningResult argfy: " + _context.getString(result));
+        _camdp.display3D(result, "extracted policy");
 
         return max._runningResult;
     }
