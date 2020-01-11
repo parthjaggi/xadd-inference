@@ -1,13 +1,14 @@
 cvariables (x1 x2)
 min-values (-10000000 -10000000)
 max-values (10000000 10000000)
-bvariables ()
+bvariables (r)
 ivariables()
 avariables(e)
 
 action drain (0 <= e <= 10000)
 
-x1' ([400 + x1 - e])
+r' (r ([0.2])([0.2]))
+x1' (r  ([400 + x1 + 20 - e])([400 + x1 - e]))
 x2' ([x2 + e])
 
 reward 	([x1'<=4500]

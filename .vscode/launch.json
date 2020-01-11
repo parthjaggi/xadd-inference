@@ -14,7 +14,7 @@
             "request": "launch",
             "mainClass": "camdp.CAMDP",
             "projectName": "xadd-inference",
-            "args": "src/camdp/ex/contact/reservoir-refinement5-modified.cmdp 4 false true"
+            "args": "src/camdp/ex/contact/reservoir-refinement5-modified.cmdp 5 false true"
         },
         {
             "type": "java",
