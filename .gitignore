@@ -4,7 +4,7 @@
 **/*.log
 **/*.dot
 **/*.xadd
-**/*.3d
+**/*.xadd.3d
 **/*.txt
 src/camdp/ex/discact/results
 src/camdp/ex/contact/results

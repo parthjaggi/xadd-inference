@@ -10,6 +10,7 @@ import xadd.XADD;
 import xadd.ExprLib.ArithExpr;
 import xadd.ExprLib.DoubleExpr;
 import xadd.XADD.*;
+import xadd.ExprLib.*;
 
 public class ComputeQFunction {
 
@@ -317,17 +318,18 @@ public class ComputeQFunction {
     public int maxOutVar(int ixadd, String var, double lb, double ub) {
         XADDLeafMinOrMax max = _context.new XADDLeafMinOrMax(var, lb, ub, true /* is_max */, _camdp._logStream);
         // System.out.println("var: " + var);
-        System.out.println("ixadd: " + _context.getString(ixadd));
+        // System.out.println("ixadd: " + _context.getString(ixadd));
 
         ixadd = _context.reduceProcessXADDLeaf(ixadd, max, false);
 
-        System.out.println("_runningResult: " + _context.getString(max._runningResult));
+        // System.out.println("_runningResult: " + _context.getString(max._runningResult));
         Integer result = _context.argify(max._runningResult);
         
+        result = _context.apply(result, 1, XADD.MAX);
         result = _context.reduceLinearize(result);
         result = _context.reduceLP(result);
 
-        System.out.println("_runningResult argfy: " + _context.getString(result));
+        // System.out.println("_runningResult argfy: " + _context.getString(result));
         _camdp.display3D(result, "extracted policy");
 
         return max._runningResult;
