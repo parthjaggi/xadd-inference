@@ -18,6 +18,14 @@
         },
         {
             "type": "java",
+            "name": "CAMDP - Args - DiscAct3",
+            "request": "launch",
+            "mainClass": "camdp.CAMDP",
+            "projectName": "xadd-inference",
+            "args": "src/camdp/ex/discact/trafficOptTrans.cmdp 2 false true"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - CAMDP",
             "request": "launch",
             "mainClass": "camdp.CAMDP",
