@@ -317,13 +317,19 @@ public class ComputeQFunction {
     public int maxOutVar(int ixadd, String var, double lb, double ub) {
         XADDLeafMinOrMax max = _context.new XADDLeafMinOrMax(var, lb, ub, true /* is_max */, _camdp._logStream);
         // System.out.println("var: " + var);
-        System.out.println("ixadd: " + _context.getString(ixadd));
+        // System.out.println("ixadd: " + _context.getString(ixadd));
 
         ixadd = _context.reduceProcessXADDLeaf(ixadd, max, false);
 
-        System.out.println("_runningResult: " + _context.getString(max._runningResult));
+        System.out.println("result: " + _context.getString(max._runningResult));
         Integer result = _context.argify(max._runningResult);
-        // System.out.println("_runningResult argfy: " + _context.getString(result));
+        System.out.println("result argified: " + _context.getString(result));
+        result = _context.reduceLinearize(result);
+        result = _context.reduceLP(result);
+
+        // Below should have matched with the result XADD, because due to nature of our problem max and argmax return the same result.
+        // But it does not match. Why?
+        System.out.println("result argified reduced: " + _context.getString(result));
 
         return max._runningResult;
     }

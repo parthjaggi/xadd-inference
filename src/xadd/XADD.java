@@ -2014,8 +2014,8 @@ public class XADD {
             // Multiply these in later
             HashMap<Decision, Boolean> target_var_indep_decisions = new HashMap<Decision, Boolean>();
 
-            System.out.println("decisions: " + decisions + "  , decision_values: " + decision_values);
-            System.out.println("leaf_val: " + leaf_val);
+            // System.out.println("decisions: " + decisions + "  , decision_values: " + decision_values);
+            // System.out.println("leaf_val: " + leaf_val);
 
             // First compute the upper and lower bounds and var-independent constraints
             // from the decisions
@@ -2098,7 +2098,7 @@ public class XADD {
             for (ArithExpr e : lower_bound) // Lower bound is max of all lower bounds
                 xadd_lower_bound = (xadd_lower_bound == -1) ? getTermNode(e)
                         : apply(xadd_lower_bound, getTermNode(e), MAX);
-            System.out.println("xadd_lower_bound: " + getString(xadd_lower_bound));
+            // System.out.println("xadd_lower_bound: " + getString(xadd_lower_bound));
 
             if (VERBOSE_MIN_MAX) _log.println("Upper bounds: " + upper_bound);
             int xadd_upper_bound = -1;
@@ -2123,7 +2123,7 @@ public class XADD {
             // root will be set to a non-null evaluation
             ArithExpr root = null;
             int highest_order = leaf_val.determineHighestOrderOfVar(_minOrMaxVar);
-            System.out.println("highest_order: " + highest_order);
+            // System.out.println("highest_order: " + highest_order);
             if (highest_order > 2) {
                 _log.println("XADDLeafMax: Cannot currently handle expressions higher than order 2 in " + _minOrMaxVar + ": " + leaf_val);
                 System.exit(1);
@@ -2141,10 +2141,10 @@ public class XADD {
             // Substitute lower and upper bounds into leaf
             int eval_lower = substituteXADDforVarInArithExpr(leaf_val, _minOrMaxVar, xadd_lower_bound);
             int eval_upper = substituteXADDforVarInArithExpr(leaf_val, _minOrMaxVar, xadd_upper_bound);
-            System.out.println("xadd_upper_bound: " + getString(xadd_upper_bound));
-            System.out.println("eval_upper: " + getString(eval_upper));
-            System.out.println("xadd_lower_bound: " + getString(xadd_lower_bound));
-            System.out.println("eval_lower: " + getString(eval_lower));
+            // System.out.println("xadd_upper_bound: " + getString(xadd_upper_bound));
+            // System.out.println("eval_upper: " + getString(eval_upper));
+            // System.out.println("xadd_lower_bound: " + getString(xadd_lower_bound));
+            // System.out.println("eval_lower: " + getString(eval_lower));
             
             // Display lower and upper bound substitution
             if (VERBOSE_MIN_MAX) _log.println("** Substitute in: " + leaf_val);
@@ -2161,14 +2161,14 @@ public class XADD {
             //     (don't think this can happen... still in context of unreachable constraints)
             // int min_max_eval = apply(eval_upper, eval_lower, _bIsMax ? MAX : MIN); // handle min and max
             int min_max_eval = apply(eval_upper, eval_lower, _bIsMax ? MAX : MIN, new int[] {xadd_upper_bound, xadd_lower_bound});
-            System.out.println("min_max_eval: " + getString(min_max_eval));
+            // System.out.println("min_max_eval: " + getString(min_max_eval));
             min_max_eval = reduceLinearize(min_max_eval);
 
             // TODO: investigate... sometimes we are getting a quadratic decision below that should have been linearized!
             // TODO: Yes, in the simple Rover-nonlinear2 we get non linear constraints! !!
             // this -> showGraph(min_max_eval, "afterLinearize"); shows nonlinear XADDs after Linearize,
             min_max_eval = reduceLP(min_max_eval); // Result should be canonical
-            System.out.println("min_max_eval: " + getString(min_max_eval));
+            // System.out.println("min_max_eval: " + getString(min_max_eval));
             if (VERBOSE_MIN_MAX)
                 _log.println(_sOpName + " of LB and UB (reduce/linearize): " + getString(min_max_eval));
 
@@ -2220,7 +2220,7 @@ public class XADD {
                 // Note: need to make function -INF when constraints violated: min(f,(v -inf +inf)) = (v -inf f)
                 min_max_eval = apply(indep_constraint, min_max_eval, _bIsMax ? MIN : MAX); // NOTE: this is correct, it is not reversed
             }
-            System.out.println("min_max_eval: " + getString(min_max_eval));
+            // System.out.println("min_max_eval: " + getString(min_max_eval));
 
             if (VERBOSE_MIN_MAX)
                 _log.println("Final " + _sOpName + "_eval before linearize: " + getString(min_max_eval));
@@ -2233,11 +2233,11 @@ public class XADD {
             if (_runningResult == -1)
                 _runningResult = min_max_eval;
             else {
-                System.out.println("_runningResult before: " + getString(_runningResult));
+                // System.out.println("_runningResult before: " + getString(_runningResult));
                 _runningResult = apply(_runningResult, min_max_eval, _bIsMax ? MAX : MIN); // handle min or max
             }
-            System.out.println("_runningResult after: " + getString(_runningResult));
-            System.out.println();
+            // System.out.println("_runningResult after: " + getString(_runningResult));
+            // System.out.println();
 
             _runningResult = reduceLinearize(_runningResult);
             _runningResult = reduceLP(_runningResult);

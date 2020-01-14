@@ -244,6 +244,8 @@ public class CAMDP {
         int[] num_nodes = new int[max_iter + 1];
         int[] num_leaves = new int[max_iter + 1];
         int[] num_branches = new int[max_iter + 1];
+        int prevAct = 0;
+        int currAct = 0;
 
         //////////////////////////////////////////////////////////////////////////
 
@@ -279,7 +281,9 @@ public class CAMDP {
 
                 // Maintain running max over different actions
                 resetTimer(0);
-                _maxDD = (_maxDD == null) ? regr : _context.apply(_maxDD, regr, XADD.MAX);
+                prevAct = (prevAct == 0) ? _context.getTermNode(new VarExpr(me.getKey())) : prevAct;
+                currAct = _context.getTermNode(new VarExpr(me.getKey()));
+                _maxDD = (_maxDD == null) ? regr : _context.apply(_maxDD, regr, XADD.MAX, new int[] {prevAct, currAct});
                 _maxDD = standardizeDD(_maxDD);
                 if (EFFICIENCY_DEBUG) System.out.println("Standardize MaxDD Time for "+me.getKey()+" in iter "+_nCurIter+" = "+getElapsedTime(0));
 
