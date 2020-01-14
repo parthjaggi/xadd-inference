@@ -3037,16 +3037,22 @@ public class XADD {
 
         public void toGraph(Graph g, int id) {
             String this_node = Integer.toString(id);
+            String annoString = null;
             g.addNode(this_node);
             if (_annotate == null)
                 g.addNodeLabel(this_node, _expr.toString());
             else
-                g.addNodeLabel(this_node, _expr.toString() + "\n[ " + _annotate + " ]");
+                annoString = ((XADDTNode) _hmInt2Node.get(_annotate))._expr.toString();
+                g.addNodeLabel(this_node, _expr.toString() + "\n[ " + modifyAnnoString(annoString) + " ]");
 
             if (GRAPH_USE_COLOR)
                 g.addNodeColor(this_node, "lightsalmon"); // red, darkred, lightsalmon
             g.addNodeShape(this_node, "box");
             g.addNodeStyle(this_node, "filled");
+        }
+
+        private String modifyAnnoString (String s) {
+            return s.substring(5,9);
         }
 
         public String toString(int depth) {
