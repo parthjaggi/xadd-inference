@@ -1,9 +1,10 @@
 /bin/
-/*.png
-/*.svg
-/*.log
-/*.dot
-/*.xadd
-/*.txt
+**/*.png
+**/*.svg
+**/*.log
+**/*.dot
+**/*.xadd
+**/*.xadd.3d
+**/*.txt
 src/camdp/ex/discact/results
 src/camdp/ex/contact/results
