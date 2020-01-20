@@ -1081,6 +1081,33 @@ public class XADD {
             if (substitutions.length > 0) {
                 node1 = getTermNode(xa1._expr, substitutions[0]);
                 node2 = getTermNode(xa2._expr, substitutions[1]);
+                
+                // what to do if both xa1 and xa2 have same equation, but different annotation.
+                // if both nodes are same (both nodes have same expr) and op=MAX
+                // return the node whose annotation XADD has the same var as the node expr
+                if (a1 == a2 && ((op == MAX) || (op == MIN))) {
+                    HashSet<String> vars = new HashSet<String>();
+                    HashSet<String> vars2 = new HashSet<String>();
+
+                    XADDNode s1 = getExistNode(substitutions[0]);
+                    XADDNode s2 = getExistNode(substitutions[1]);
+                    s1.collectVars(vars);
+                    s2.collectVars(vars2);
+
+                    HashSet<String> exprVars = new HashSet<String>();
+                    xa1._expr.collectVars(exprVars);
+
+                    // if first annotation contains vars corresponding to node equation, 
+                    // return that node, otherwise other node..
+                    if (exprVars.toArray().length > 0) {
+                        if (vars.contains(exprVars.toArray()[0])) {
+                            return node1;
+                        } else if (vars2.contains(exprVars.toArray()[0])) {
+                            return node2;
+                        }
+                    }
+                }
+
             } else {
                 node1 = getTermNode(xa1._expr, xa1._annotate);
                 node2 = getTermNode(xa2._expr, xa2._annotate);
