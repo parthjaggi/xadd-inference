@@ -26,6 +26,21 @@
         },
         {
             "type": "java",
+            "name": "CAMDP - Args - Simple Transportation",
+            "request": "launch",
+            "mainClass": "camdp.CAMDP",
+            "projectName": "xadd-inference",
+            // mars rover
+            // "args": "src/camdp/ex/contact/Rover-nonlinear2.cmdp 2 false false"
+
+            // simple with slip x > 20
+            // "args": "src/camdp/ex/contact/1d-robot-linear.cmdp 2 false false"
+            
+            // simpler x < 20
+            "args": "src/camdp/ex/contact/1d-robot-linear2.cmdp 2 false false"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - CAMDP",
             "request": "launch",
             "mainClass": "camdp.CAMDP",

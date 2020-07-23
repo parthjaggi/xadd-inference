@@ -850,9 +850,9 @@ public class XADD {
         HashMap<IntTriple, Integer> applyCache = (substitutions.length == 0) ? _hmApplyCache : _hmApplyCache2;
         Integer ret = applyCache.get(_tempApplyKey);
 
-        if (ret != null) {
-            return ret;
-        }
+        // if (ret != null) {
+        //     return ret;
+        // }
 
         // Can we create a terminal node here?
         XADDNode n1 = getExistNode(a1);
@@ -1081,6 +1081,52 @@ public class XADD {
             if (substitutions.length > 0) {
                 node1 = getTermNode(xa1._expr, substitutions[0]);
                 node2 = getTermNode(xa2._expr, substitutions[1]);
+                
+                // what to do if both xa1 and xa2 have same equation, but different annotation.
+                // return the node whose annotation XADD has the same var as the node expr
+                if (a1 == a2 && ((op == MAX) || (op == MIN))) {
+                    HashSet<String> vars = new HashSet<String>();
+                    HashSet<String> vars2 = new HashSet<String>();
+
+                    XADDNode s1 = getExistNode(substitutions[0]);
+                    XADDNode s2 = getExistNode(substitutions[1]);
+                    s1.collectVars(vars);
+                    s2.collectVars(vars2);
+
+                    HashSet<String> exprVars = new HashSet<String>();
+                    xa1._expr.collectVars(exprVars);
+
+                    // if first annotation contains vars corresponding to node equation, 
+                    // return that node, otherwise other node..
+                    if (exprVars.toArray().length > 0 && (vars.toArray().length > 0 || vars2.toArray().length > 0)) {
+                        if (vars.contains(exprVars.toArray()[0])) {
+                            return node1;
+                        } else if (vars2.contains(exprVars.toArray()[0])) {
+                            return node2;
+                        }
+                    }
+
+                    // for cases when both expression are 0 (or equal). 
+                    // substitutions are 10 and 10^6. 10^6 is likely to be due to variable limits.
+                    // so 10 (or smaller one) is choosen.
+                    if (exprVars.isEmpty() || (vars.isEmpty() && vars2.isEmpty())) {
+                        // if both annotations are terminal constants, return "0" node annotation.
+                        return getTermNode(xa1._expr, 1);
+
+                        // if ((s1 instanceof XADDTNode) && (s2 instanceof XADDTNode)) {
+                        //     int v1 = Math.abs(Integer.valueOf(((XADDTNode) s1)._expr.toString()));
+                        //     int v2 = Math.abs(Integer.valueOf(((XADDTNode) s2)._expr.toString()));
+                        //     if (v1 == v2) {
+                        //         return getTermNode(xa1._expr, 1);
+                        //     } else if (v1 < v2) {
+                        //         return node1;
+                        //     } else {
+                        //         return node2;
+                        //     }
+                        // }
+                    }
+                }
+
             } else {
                 node1 = getTermNode(xa1._expr, xa1._annotate);
                 node2 = getTermNode(xa2._expr, xa2._annotate);
@@ -2014,8 +2060,8 @@ public class XADD {
             // Multiply these in later
             HashMap<Decision, Boolean> target_var_indep_decisions = new HashMap<Decision, Boolean>();
 
-            // System.out.println("decisions: " + decisions + "  , decision_values: " + decision_values);
-            // System.out.println("leaf_val: " + leaf_val);
+            System.out.println("decisions: " + decisions + "  , decision_values: " + decision_values);
+            System.out.println("leaf_val: " + leaf_val);
 
             // First compute the upper and lower bounds and var-independent constraints
             // from the decisions
@@ -2123,7 +2169,7 @@ public class XADD {
             // root will be set to a non-null evaluation
             ArithExpr root = null;
             int highest_order = leaf_val.determineHighestOrderOfVar(_minOrMaxVar);
-            // System.out.println("highest_order: " + highest_order);
+            System.out.println("highest_order: " + highest_order);
             if (highest_order > 2) {
                 _log.println("XADDLeafMax: Cannot currently handle expressions higher than order 2 in " + _minOrMaxVar + ": " + leaf_val);
                 System.exit(1);
@@ -2141,10 +2187,10 @@ public class XADD {
             // Substitute lower and upper bounds into leaf
             int eval_lower = substituteXADDforVarInArithExpr(leaf_val, _minOrMaxVar, xadd_lower_bound);
             int eval_upper = substituteXADDforVarInArithExpr(leaf_val, _minOrMaxVar, xadd_upper_bound);
-            // System.out.println("xadd_upper_bound: " + getString(xadd_upper_bound));
-            // System.out.println("eval_upper: " + getString(eval_upper));
-            // System.out.println("xadd_lower_bound: " + getString(xadd_lower_bound));
-            // System.out.println("eval_lower: " + getString(eval_lower));
+            System.out.println("xadd_upper_bound: " + getString(xadd_upper_bound));
+            System.out.println("eval_upper: " + getString(eval_upper));
+            System.out.println("xadd_lower_bound: " + getString(xadd_lower_bound));
+            System.out.println("eval_lower: " + getString(eval_lower));
             
             // Display lower and upper bound substitution
             if (VERBOSE_MIN_MAX) _log.println("** Substitute in: " + leaf_val);
@@ -2161,14 +2207,14 @@ public class XADD {
             //     (don't think this can happen... still in context of unreachable constraints)
             // int min_max_eval = apply(eval_upper, eval_lower, _bIsMax ? MAX : MIN); // handle min and max
             int min_max_eval = apply(eval_upper, eval_lower, _bIsMax ? MAX : MIN, new int[] {xadd_upper_bound, xadd_lower_bound});
-            // System.out.println("min_max_eval: " + getString(min_max_eval));
+            System.out.println("min_max_eval: " + getString(min_max_eval));
             min_max_eval = reduceLinearize(min_max_eval);
 
             // TODO: investigate... sometimes we are getting a quadratic decision below that should have been linearized!
             // TODO: Yes, in the simple Rover-nonlinear2 we get non linear constraints! !!
             // this -> showGraph(min_max_eval, "afterLinearize"); shows nonlinear XADDs after Linearize,
             min_max_eval = reduceLP(min_max_eval); // Result should be canonical
-            // System.out.println("min_max_eval: " + getString(min_max_eval));
+            System.out.println("min_max_eval: " + getString(min_max_eval));
             if (VERBOSE_MIN_MAX)
                 _log.println(_sOpName + " of LB and UB (reduce/linearize): " + getString(min_max_eval));
 
@@ -2176,6 +2222,7 @@ public class XADD {
             if (root != null) {
 
                 int eval_root = substituteXADDforVarInArithExpr(leaf_val, _minOrMaxVar, getTermNode(root));
+                int rootNode = getTermNode(root);
                 if (VERBOSE_MIN_MAX) _log.println("root substitute: " + getString(eval_root));
 
                 // Now incorporate constraints into int_eval, make result canonical
@@ -2199,9 +2246,22 @@ public class XADD {
                 //max_eval_root = reduceLP(max_eval_root); // Result should be canonical
 
                 if (VERBOSE_MIN_MAX) _log.println("constrained root substitute: " + getString(eval_root));
-                min_max_eval = apply(min_max_eval, eval_root, _bIsMax ? MAX : MIN); // handle min or max
+                min_max_eval = apply(min_max_eval, eval_root, _bIsMax ? MAX : MIN, new int[] {-1, rootNode}); // handle min or max
+                System.out.println("min_max_eval root.: " + getString(min_max_eval));
                 min_max_eval = reduceLinearize(min_max_eval);
                 min_max_eval = reduceLP(min_max_eval); // Result should be canonical
+                System.out.println("min_max_eval root. reduced: " + getString(min_max_eval));
+
+                // plot min_max_eval.  
+                displayGraph(min_max_eval, "min_max_eval");
+
+                int arg = argify(min_max_eval);
+                arg = reduceLinearize(arg);
+                arg = reduceLP(arg); // Result should be canonical
+                // plot arg.
+                displayGraph(arg, "min_max_eval-arg");
+
+
                 if (VERBOSE_MIN_MAX)
                     _log.println(_sOpName + " of constrained root sub and int_eval(LB/UB): " + getString(min_max_eval));
             }
@@ -2220,7 +2280,7 @@ public class XADD {
                 // Note: need to make function -INF when constraints violated: min(f,(v -inf +inf)) = (v -inf f)
                 min_max_eval = apply(indep_constraint, min_max_eval, _bIsMax ? MIN : MAX); // NOTE: this is correct, it is not reversed
             }
-            // System.out.println("min_max_eval: " + getString(min_max_eval));
+            System.out.println("min_max_eval: " + getString(min_max_eval));
 
             if (VERBOSE_MIN_MAX)
                 _log.println("Final " + _sOpName + "_eval before linearize: " + getString(min_max_eval));
@@ -2236,8 +2296,8 @@ public class XADD {
                 // System.out.println("_runningResult before: " + getString(_runningResult));
                 _runningResult = apply(_runningResult, min_max_eval, _bIsMax ? MAX : MIN); // handle min or max
             }
-            // System.out.println("_runningResult after: " + getString(_runningResult));
-            // System.out.println();
+            System.out.println("_runningResult after: " + getString(_runningResult));
+            System.out.println();
 
             _runningResult = reduceLinearize(_runningResult);
             _runningResult = reduceLP(_runningResult);
@@ -2274,6 +2334,23 @@ public class XADD {
 
             return getINodeCanon(var, low, high);
         }
+    }
+
+    public void displayGraph(int xadd_id, String label) {
+        String[] split = label.split("[\\\\/]");
+        label = split[split.length - 1];
+        label = label.replace(".csamdp", "").replace(".camdp", "").replace(".cmdp", "");
+    
+        Graph g;
+        int count;
+        g = getGraph(xadd_id);
+        g.addNode("_temp_");
+        g.addNodeLabel("_temp_", label);
+        g.addNodeShape("_temp_", "square");
+        g.addNodeStyle("_temp_", "filled");
+        g.addNodeColor("_temp_", "gold1");
+        String safe_filename = label.replace('^', '_').replace("(", "").replace(")", "").replace(":", "_").replace(" ", "");
+        g.launchViewer(label);
     }
 
     ////////////////////////////////////////////////////
